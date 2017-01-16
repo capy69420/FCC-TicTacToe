@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>FCC Tic Tac Toe</title>
+      <meta charset="UTF-8">
+      <link rel = 'stylesheet' type = 'text/css' href = 'css/ui.css'>
+  </head>
+    <body>
+          <div class = 'main-container'>
+              <div class = 'board'>
+                  <!-- data-indx following cell divs represents cell index in 1D array representation -->
+                  <div class='cell' data-indx = "0" ></div>
+                  <div class='cell' data-indx = "1" ></div>
+                  <div class='cell' data-indx = "2" ></div>
+                  <div class='cell' data-indx = "3" ></div>
+                  <div class='cell' data-indx = "4" ></div>
+                  <div class='cell' data-indx = "5" ></div>
+                  <div class='cell' data-indx = "6" ></div>
+                  <div class='cell' data-indx = "7" ></div>
+                  <div class='cell' data-indx = "8" ></div>
+              </div>
+
+              <div class = 'control'>
+                  <!-- div.intial displays the starting controls -->
+                  <div class = 'intial'>
+                    <div class = 'difficulty'>
+                        <span class = 'choosePlayer not-selected' id = "X">X</span>
+                        <span class = 'choosePlayer not-selected' id = "O">O</span>
+                    </div>
+                      <div class='start'> Start </div>
+                  </div>
+
+                  <!-- div.ingame displays in-game messages and controls -->
+                  <div class = 'ingame' id="human">It's your turn ...</div>
+                  <div class = 'ingame' id="ai">
+                      <p>Wait for it ...</p>
+                  </div>
+                  <div class = 'ingame' id="won">You won !</div>
+                  <div class = 'ingame' id="lost">You lost !</div>
+                  <div class = 'ingame' id="draw">It's a Draw</div>
+              </div>
+          </div>
+        </body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src = "js/ui.js"></script>
+        <script src="js/Board.js"></script>
+        <script src="js/State.js"></script>
+        <script src = "js/Game.js"></script>
+        <script src = "js/AI.js"></script>
+        <script src = "js/control.js"></script>
+
+</html>
