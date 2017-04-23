@@ -24,13 +24,12 @@ $(".choosePlayer").each(function() {
  */
 $(".start").click(function() {
     let player = $('.selected').attr("id");
-    console.log(player);
     if(typeof player !== "undefined") {
         var aiPlayer = new AI();
-        globals.game = new Game(aiPlayer);
+        globals.game = new Game(aiPlayer, player);
 
         globals.game.player = player;
-
+        aiPlayer.game = globals.game;
         globals.game.start();
     }
 });
@@ -43,21 +42,31 @@ $(".start").click(function() {
  */
 
  $(".cell").each(function() {
-     var $this = $(this);
+     let $this = $(this);
      $this.click(function() {
-       console.log(globals.game.status);
-         if(globals.game.status === "running" && globals.game.currentState.turn === globals.game.player && !$this.hasClass('occupied')) {
-             var indx = parseInt($this.data("indx"));
+         if( (globals.game!==undefined) && (globals.game.status === "playing") &&
+         (globals.game.currentState.turn === globals.game.player) && !($this.hasClass('occupied')) ) {
+             var indx_i = parseInt($this.data("indx-i"));
+             var indx_j = parseInt($this.data("indx-j"));
 
-             var next = new State(globals.game.currentState);
-             next.board[indx] = globals.game.player;
-
+             let next = new State(globals.game.currentState, globals.game.currentState.turn);
+             var indx = [indx_i, indx_j];
+             next.result = next.board.play(indx_i,indx_j);
+             //console.log("board in console:");next.board.print();
              ui.insertAt(indx, globals.game.player);
 
              next.advanceTurn();
-
-             globals.game.advanceTo(next);
+             globals.game.currentState = next;
+             globals.game.advanceState();
 
          }
      })
 });
+
+function replay() {
+  window.location.reload();
+}
+
+function endGame() {
+  $("#end").hide();
+}

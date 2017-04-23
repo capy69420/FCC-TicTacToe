@@ -2,8 +2,8 @@
 /*
  * board.js - Game logic for the board game
  */
-var Board = function(size) {
-    this.current_player = Board.CROSS;
+var Board = function(size, startPlayer) {
+    this.current_player = startPlayer;
     this.size = size;
     this.board = this.create_board(size);
 };
@@ -29,28 +29,32 @@ Board.prototype.create_board = function(size) {
 * Returns a copy of the board orig.
 */
 Board.prototype.copyBoard = function(orig) {
-  let cop = new Board(orig.size);
-  for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++)
-          cop[i][j] = orig[i][j];
-  }
+  let cop = new Board(orig.size,orig.current_player);
   cop.game_end = orig.game_end;
   cop.pieces = orig.pieces;
+  for (let i = 0; i < orig.size; i++) {
+      for (let j = 0; j < orig.size; j++)
+          cop.board[i][j] = orig.board[i][j];
+  }
   return cop;
 }
 /*
  * Switches the current player
  */
 Board.prototype.switch_player = function() {
-    this.current_player =
-        this.current_player == Board.CROSS ? Board.CIRCLE : Board.CROSS;
+  if (this.current_player == "X")
+    this.current_player = "O";
+  else {
+    this.current_player = "X";
+  }
 };
 
 Board.prototype.emptyCells = function() {
   let cells = [];
   for( let i = 0; i < this.size; ++i ) {
     for ( let j = 0; j < this.size; ++j ) {
-      if ( this[i][j] == Board.EMPTY ) {
+      if ( this.board[i][j] == Board.EMPTY ) {
+        console.log(this.board[i][j]);
         cells.push([i,j]);
       }
     }
@@ -58,35 +62,62 @@ Board.prototype.emptyCells = function() {
   return cells;
 }
 
+function toValue(player) {
+  if ( player == 'X' )
+      return Board.CROSS;
+  else if ( player == 'O' )
+      return Board.CIRCLE;
+  else
+      return Board.EMPTY;
+}
 /*
  * Attempt to place a stone at (i,j). Returns false iff the move was illegal
+ * if it was a terminal move it returns the reult
  */
 Board.prototype.play = function(i, j) {
-    console.log("Played at " + i + ", " + j);
-
-    if (this.board[i][j] != Board.EMPTY)
+    if (this.board[i][j] !== Board.EMPTY)
         return false;
     else {
+      console.log(toValue(this.current_player), this.current_player);
+      this.board[i][j] = toValue(this.current_player);
       this.pieces++;
     }
-    var player = this[i][j] = this.current_player;
     // isTerminal
+    //console.log(this.won(i,j));
     if ( this.won(i,j) ) {
 		  console.log(this.current_player + " won");
       this.game_end = true;
+      if ( this.current_player == globals.game.player ) {
+        return "player-won";
+      } else {
+        return "AI-won";
+      }
     } else if ( this.pieces == this.size*this.size ) {
       console.log("drawn");
       this.game_end = true;
+      return "drawn";
+    } else {
+      console.log( this.current_player + " Played at " + i + ", " + j);
+      console.log('board:');
+      this.print();
+      this.switch_player();
     }
-    this.switch_player();
     return true;
 };
 
+ function Equal(boardNumber, char) {
+  if ( char === 'X' && boardNumber === Board.CROSS )
+      return true;
+  else if ( char === 'O' && boardNumber === Board.CIRCLE )
+      return true;
+  else
+    return false;
+}
 
 /*
  * Goes though the direction and pushes every position of that line wich has the current_player
  */
-Board.prototype.get_line = function ( x, y, direction ) {
+Board.prototype.get_line = function ( x, y, direction, winner ) {
 	let S = [];
 	let i, j;
 	switch ( direction ) {
@@ -117,48 +148,60 @@ Board.prototype.get_line = function ( x, y, direction ) {
 			break;
 		}
 	}
+  let lastPlayer = (this.current_player == 'X')? 'O':'X';
 	while ( x > -1 && y > -1 && x < this.size && y < this.size ) {
-		if ( this.board[x][y] != this.current_player )
+    if ( !Equal(this.board[x][y], this.current_player) )
 			return false;
 		S.push([x,y]);
 		x = x + i;
 		y = y + j;
 	}
-	return S;
+  return true, S;
 }
 
 /*
- * Checks if the current_player have won if the current_player won or else returning false.
+ * Checks if the current_player have won if the current_player won returns an array with the line
+ * or else returs false.
  * Takes the player move as an argument to perform depth-first search like but only on linear directions.
  */
 Board.prototype.won = function ( x, y ) {
 	// Vertical
 	let S = this.get_line(x, y, "vertical" );
-	if ( S.length == this.size ) {
+  if ( S.length == this.size ) {
     this.game_end = true;
     return S;
-	} else
-		return false;
-	// Horizontal
+	}
+  // Horizontal
 	S = this.get_line(x, y, "horizontal" );
 	if ( S.length == this.size ) {
     this.game_end = true;
     return S;
-	} else
-		return false;
+	}
 	// Diagonal top left to right
 	S = this.get_line(x, y, "diagonal1" );
 	if ( S.length == this.size ) {
     this.game_end = true;
     return S;
-	} else
-		return false;
+	}
 	// Diagonal top right to left
 	S = this.get_line(x, y, "diagonal2" );
 	if ( S.length == this.size ) {
     this.game_end = true;
 		return S;
-	} else
-		return false;
+	}
+  return false;
 
+}
+
+Board.prototype.print = function () {
+  this.size
+  this.board
+  let out = '';
+  for ( let i = 0; i < this.size; ++i ) {
+    for( let j = 0; j < this.size; ++j ) {
+      out += this.board[i][j] + ' ';
+    }
+    out += '\n';
+  }
+  console.log(out);
 }

@@ -1,25 +1,24 @@
 const boardSize = 3;
-var player = "O";
 
-let State = function(old) {
-    this.turn = "";
+let State = function(old, player) {
+    this.turn = player;
     this.moveCount = 0;
     this.result = "playing";
-    this.board = new Board(boardSize);
 
     if(typeof old !== "undefined") {
       // if the state is constructed using a copy of another state
-      let len = old.board.size;
-      this.board = new Board(len);
-      this.board.copyBoard(old.board);
+      this.board = old.board.copyBoard(old.board);
 
-      this.oMovesCount = old.oMovesCount;
+      this.moveCount = old.moveCount;
       this.result = old.result;
       this.turn = old.turn;
+    } else {
+      this.board = new Board(boardSize, this.turn);
     }
 
     this.advanceTurn = function() {
         this.turn = this.turn === "X" ? "O" : "X";
+        this.moveCount++;
     }
 
     /* list the empy cells */

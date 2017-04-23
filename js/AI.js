@@ -4,12 +4,13 @@
  * made that action
  */
 var AIAction = function(pos) {
+    let player = globals.game.player;
 
     // public : the position on the board that the action would put the letter on
     this.movePosition = pos;
 
     //public : the minimax value of the state that the action leads to when applied
-    this.minimaxVal = 0;
+    this.minMax = 0;
 
     /*
      * public : applies the action to a state to get the next state
@@ -38,9 +39,9 @@ var AIAction = function(pos) {
  * @return [Number]: -1, 1, or 0
  */
 AIAction.ASCENDING = function(firstAction, secondAction) {
-    if(firstAction.minimaxVal < secondAction.minimaxVal)
+    if(firstAction.minMax < secondAction.minMax)
         return -1; //indicates that firstAction goes before secondAction
-    else if(firstAction.minimaxVal > secondAction.minimaxVal)
+    else if(firstAction.minMax > secondAction.minMax)
         return 1; //indicates that secondAction goes before firstAction
     else
         return 0; //indicates a tie
@@ -53,9 +54,9 @@ AIAction.ASCENDING = function(firstAction, secondAction) {
  * @return [Number]: -1, 1, or 0
  */
 AIAction.DESCENDING = function(firstAction, secondAction) {
-    if(firstAction.minimaxVal > secondAction.minimaxVal)
+    if(firstAction.minMax > secondAction.minMax)
         return -1; //indicates that firstAction goes before secondAction
-    else if(firstAction.minimaxVal < secondAction.minimaxVal)
+    else if(firstAction.minMax < secondAction.minMax)
         return 1; //indicates that secondAction goes before firstAction
     else
         return 0; //indicates a tie
@@ -63,17 +64,16 @@ AIAction.DESCENDING = function(firstAction, secondAction) {
 
 // AI always plays the best move
 var AI = function(position) {
-  let game = {};
-
   this.movePosition = position;
-  this.minMaxVal = 0;
+  this.minMax = 0;
 
 /*
 * Applies the move in position to the state to return the next state
 */
   this.applyTo = function(state) {
+    let player = globals.game.player;
     let next = new State(state);
-    next.board[position[0]][position[1]] = state.turn;
+    next.board.board[position[0]][position[1]] = state.turn;
 
     if( state.turn !== player ) {
       next.moveCount++;
@@ -82,59 +82,84 @@ var AI = function(position) {
     return next;
   }
 
+}
 
-  function minMaxValue(state) {
-    if( state.isTerminal() )  {
-      return Game.score(state);
-    } else {
-      let stateScore;
-      if (state.turn == player )
-        stateScore = -1000;
-      else
-        stateScore = 1000;
+AI.prototype.minMaxValue = function (state) {
+  let player = globals.game.player;
 
-      let aviablePositions = state.emptyCells();
-      let aviableNextStates = aviablePositions.map(function(pos) {
-        let action = new AI(pos);
-        let nextState = action.applyTo(state);
-        return nextState;
-      });
+  if( state.isTerminal() )  {
+    return Game.score(state);
+  } else {
+    let stateScore;
+    if (state.turn == player )
+      stateScore = -1000;
+    else
+      stateScore = 1000;
 
-      aviableNextStates.forEach(function(nextState) {
-        let nextScore = minMaxValue(nextState);
-        if ( state.turn == player ) {
-          if ( nextScore > stateScore )
-            stateScore = nextScore;
-        } else {
-          if ( nextScore < stateScore )
-            stateScore = nextScore;
-        }
-      });
-      return stateScore;
-    }
-  }
-
-  function takeMasterMove(turn) {
-    let aviable = game.currentState.emptyCells();
-    let aviableActions = aviable.map(function(pos){
+    let aviablePositions = state.emptyCells();
+    //console.log(aviablePositions);
+    let aviableNextStates = aviablePositions.map(function(pos) {
       let action = new AI(pos);
-      let next = action.applyTo(game.currentState);
-      action.minMaxVal = minMaxValue(next);
-      return action;
+      let nextState = action.applyTo(state);
+      return nextState;
     });
 
-    // sort the action list by score
-    if ( turn == player )
-      aviableActions.sort(AI.DESCENDING);
-    else {
-      aviableActions.sort(AI.ASCENDING);
+    aviableNextStates.forEach(function(nextState) {
+      let action = new AI(nextState);
+      //console.log(action);
+      let nextScore = action.minMaxValue(nextState);
+      if ( state.turn == player ) {
+        if ( nextScore > stateScore )
+          stateScore = nextScore;
+        else {
+        if ( nextScore < stateScore )
+          stateScore = nextScore;
+        }
     }
-
-    let chosenAction = aviableActions[0];
-    let next = chosenAction.applyTo(game.currentState);
-
-    // display it on the board
-    ui.insertAt(choosenAction.movePosition, turn);
-    game.advanceState(next);
+    });
+    return stateScore;
   }
+}
+AI.prototype.takeSimpleMove = function() {
+  let next = new State(globals.game.currentState);
+  globals.game.currentState = next;
+  let aviablePositions = next.emptyCells();
+  console.log(aviablePositions);
+  let chosenAction = aviablePositions[0];
+
+  // play and display it on the board
+  let result = globals.game.currentState.board.play(chosenAction[0],chosenAction[1]);
+  globals.game.currentState.result = result;
+  ui.insertAt(chosenAction, globals.game.currentState.turn);
+  globals.game.currentState.advanceTurn();
+  globals.game.advanceState();
+}
+AI.prototype.takeMasterMove = function (turn) {
+  let player = globals.game.player;
+  let aviable = globals.game.currentState.emptyCells();
+  let aviableActions = aviable.map(function(pos){
+    let action = new AI(pos);
+    let next = action.applyTo(globals.game.currentState);
+    action.minMax = action.minMaxValue(next);
+    return action;
+  });
+
+  // sort the action list by score
+  if ( turn == player )
+    aviableActions.sort(AI.DESCENDING);
+  else {
+    aviableActions.sort(AI.ASCENDING);
+  }
+
+  let chosenAction = aviableActions[0];
+  let next = chosenAction.applyTo(globals.game.currentState);
+
+  // display it on the board
+  ui.insertAt(chosenAction.movePosition, turn);
+  globals.game.advanceState(next);
+}
+
+AI.prototype.notify = function() {
+  //this.takeMasterMove(globals.game.currentState.turn);
+  this.takeSimpleMove();
 }

@@ -2,12 +2,11 @@
  * ui object encloses all UI related methods and attributes
  */
 var ui = {};
-
 //holds the state of the intial controls visibility
 ui.intialControlsVisible = true;
 
 //holds the current visible view
-ui.currentView = "";
+ui.currentView = null;
 
 
 /*
@@ -15,7 +14,7 @@ ui.currentView = "";
  * @param turn [String]: the player to switch the view to
  */
 ui.switchViewTo = function(turn) {
-
+    console.log(ui.currentView);
     //helper function for async calling
     function _switch(_turn) {
         ui.currentView = "#" + _turn;
@@ -53,8 +52,7 @@ ui.switchViewTo = function(turn) {
  */
 ui.insertAt = function(indx, symbol) {
     var board = $('.cell');
-    var targetCell = $(board[indx]);
-
+    var targetCell = $('[data-indx-i="'+indx[0]+'"]' +'[data-indx-j="'+indx[1]+'"]' );
     if(!targetCell.hasClass('occupied')) {
         targetCell.html(symbol);
         targetCell.css({
