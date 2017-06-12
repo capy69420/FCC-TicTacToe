@@ -19,6 +19,7 @@ let Game = function(autoPlayer, player) {
       }
       this.status = "game-end";
       ui.switchViewTo("end");
+      globals.refreshTime = setTimeout(function(){window.location.reload();},3000);
     } else {
       if ( state.turn == player ) {
         ui.switchViewTo("human");

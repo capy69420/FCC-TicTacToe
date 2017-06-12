@@ -74,5 +74,6 @@ function playAgain() {
 }
 
 function endGame() {
+  clearTimeout(globals.refreshTime);
   $("#end").hide();
 }
