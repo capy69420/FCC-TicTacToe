@@ -1,4 +1,3 @@
-const boardSize = 3;
 
 let State = function(old, player) {
     this.turn = player;
@@ -17,7 +16,8 @@ let State = function(old, player) {
     }
 
     this.advanceTurn = function() {
-        this.turn = this.turn === "X" ? "O" : "X";
+        this.turn = (this.turn === "X" ? "O" : "X");
+        this.board.switch_player();
         this.moveCount++;
     }
 
@@ -28,5 +28,23 @@ let State = function(old, player) {
 
     this.isTerminal = function() {
       return this.board.game_end;
+    }
+
+    this.play = function(i,j) {
+      let res = this.board.play(i,j);
+      if ( typeof(res) === "string" )
+        this.result = res;
+    }
+}
+
+State.prototype.score = function() {
+    if(this.result === "AI-won"){
+        return 10;
+    }
+    else if(this.result === "player-won") {
+        return -10;
+    }
+    else if (this.result === "drawn") {
+        return 0;
     }
 }

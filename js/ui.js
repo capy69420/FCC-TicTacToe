@@ -1,20 +1,18 @@
 /*
  * ui object encloses all UI related methods and attributes
  */
-var ui = {};
+let ui = {};
 //holds the state of the intial controls visibility
 ui.intialControlsVisible = true;
 
 //holds the current visible view
 ui.currentView = null;
 
-
 /*
  * switchs the view on the UI depending on who's turn it switchs
  * @param turn [String]: the player to switch the view to
  */
 ui.switchViewTo = function(turn) {
-    console.log(ui.currentView);
     //helper function for async calling
     function _switch(_turn) {
         ui.currentView = "#" + _turn;
@@ -46,8 +44,7 @@ ui.switchViewTo = function(turn) {
 
 /*
  * places X or O in the specifed place in the board
- * @param i [Number] : row number (0-indexed)
- * @param j [Number] : column number (0-indexed)
+ * @param indx [Number,Number] : i and j indecies
  * @param symbol [String]: X or O
  */
 ui.insertAt = function(indx, symbol) {

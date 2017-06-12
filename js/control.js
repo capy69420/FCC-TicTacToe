@@ -1,12 +1,47 @@
+const boardSize = 3;
 /*
  * object to contain all items accessable to all control functions
  */
-var globals = {};
+let globals = {};
+
+function drawnBoard() {
+  for ( let i = 0; i < boardSize; ++i ) {
+    for ( let j = 0; j < boardSize; ++j ) {
+      let div = document.createElement('div');
+      div.className = "cell";
+      div.setAttribute("data-indx-i",i);
+      div.setAttribute("data-indx-j",j);
+      document.getElementById("board").appendChild(div);
+    }
+  }
+  // response on click
+  $(".cell").each(function() {
+      let $this = $(this);
+      $this.click(function() {
+          if( (globals.game!==undefined) && (globals.game.status === "playing") &&
+          (globals.game.currentState.turn === globals.game.player) && !($this.hasClass('occupied')) ) {
+              var indx_i = parseInt($this.data("indx-i"));
+              var indx_j = parseInt($this.data("indx-j"));
+
+              let next = new State(globals.game.currentState, globals.game.currentState.turn);
+              var indx = [indx_i, indx_j];
+              next.result = next.board.play(indx_i,indx_j);
+              ui.insertAt(indx, globals.game.player);
+
+              next.advanceTurn();
+              globals.game.currentState = next;
+              globals.game.advanceState();
+
+          }
+      })
+ });
+}
+drawnBoard();
 /*
   choose the player
 */
 $(".choosePlayer").each(function() {
-   var $this = $(this);
+   let $this = $(this);
    $this.click(function() {
        $('.selected').toggleClass('not-selected');
        $('.selected').toggleClass('selected');
@@ -34,36 +69,7 @@ $(".start").click(function() {
     }
 });
 
-/*
- * click on cell (onclick div.cell) behavior and control
- * if an empty cell is clicked when the game is running and its the human player's trun
- * get the indecies of the clickd cell, craete the next game state, upadet the UI, and
- * advance the game to the new created state
- */
-
- $(".cell").each(function() {
-     let $this = $(this);
-     $this.click(function() {
-         if( (globals.game!==undefined) && (globals.game.status === "playing") &&
-         (globals.game.currentState.turn === globals.game.player) && !($this.hasClass('occupied')) ) {
-             var indx_i = parseInt($this.data("indx-i"));
-             var indx_j = parseInt($this.data("indx-j"));
-
-             let next = new State(globals.game.currentState, globals.game.currentState.turn);
-             var indx = [indx_i, indx_j];
-             next.result = next.board.play(indx_i,indx_j);
-             //console.log("board in console:");next.board.print();
-             ui.insertAt(indx, globals.game.player);
-
-             next.advanceTurn();
-             globals.game.currentState = next;
-             globals.game.advanceState();
-
-         }
-     })
-});
-
-function replay() {
+function playAgain() {
   window.location.reload();
 }
 

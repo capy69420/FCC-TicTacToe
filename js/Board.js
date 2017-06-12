@@ -2,17 +2,18 @@
 /*
  * board.js - Game logic for the board game
  */
-var Board = function(size, startPlayer) {
+let Board = function(size, startPlayer) {
     this.current_player = startPlayer;
     this.size = size;
     this.board = this.create_board(size);
+    this.pieces = 0;
+    this.game_end = false;
 };
 
 Board.EMPTY = 0;
 Board.CROSS = 1;
 Board.CIRCLE = 2;
-Board.game_end = false;
-Board.pieces = 0;
+
 /*
  * Returns a size x size matrix with all entries initialized to Board.EMPTY
  */
@@ -54,7 +55,6 @@ Board.prototype.emptyCells = function() {
   for( let i = 0; i < this.size; ++i ) {
     for ( let j = 0; j < this.size; ++j ) {
       if ( this.board[i][j] == Board.EMPTY ) {
-        console.log(this.board[i][j]);
         cells.push([i,j]);
       }
     }
@@ -62,7 +62,7 @@ Board.prototype.emptyCells = function() {
   return cells;
 }
 
-function toValue(player) {
+Board.prototype.toValue = function (player) {
   if ( player == 'X' )
       return Board.CROSS;
   else if ( player == 'O' )
@@ -78,29 +78,20 @@ Board.prototype.play = function(i, j) {
     if (this.board[i][j] !== Board.EMPTY)
         return false;
     else {
-      console.log(toValue(this.current_player), this.current_player);
-      this.board[i][j] = toValue(this.current_player);
+      this.board[i][j] = this.toValue(this.current_player);
       this.pieces++;
     }
     // isTerminal
-    //console.log(this.won(i,j));
     if ( this.won(i,j) ) {
-		  console.log(this.current_player + " won");
-      this.game_end = true;
+		  this.game_end = true;
       if ( this.current_player == globals.game.player ) {
         return "player-won";
       } else {
         return "AI-won";
       }
     } else if ( this.pieces == this.size*this.size ) {
-      console.log("drawn");
       this.game_end = true;
       return "drawn";
-    } else {
-      console.log( this.current_player + " Played at " + i + ", " + j);
-      console.log('board:');
-      this.print();
-      this.switch_player();
     }
     return true;
 };
@@ -143,7 +134,7 @@ Board.prototype.get_line = function ( x, y, direction, winner ) {
 		case "diagonal2" : {
 			x = 0;
 			y = this.size-1;
-			i = -1;
+			i = 1;
 			j = -1;
 			break;
 		}

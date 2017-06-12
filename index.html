@@ -6,17 +6,7 @@
   </head>
     <body>
           <div class = 'main-container'>
-              <div class = 'board'>
-                  <!-- data-indx following cell divs represents cell index in 1D array representation -->
-                  <div class='cell' data-indx-i = "0" data-indx-j = "0" ></div>
-                  <div class='cell' data-indx-i = "0" data-indx-j = "1" ></div>
-                  <div class='cell' data-indx-i = "0" data-indx-j = "2" ></div>
-                  <div class='cell' data-indx-i = "1" data-indx-j = "0" ></div>
-                  <div class='cell' data-indx-i = "1" data-indx-j = "1" ></div>
-                  <div class='cell' data-indx-i = "1" data-indx-j = "2" ></div>
-                  <div class='cell' data-indx-i = "2" data-indx-j = "0" ></div>
-                  <div class='cell' data-indx-i = "2" data-indx-j = "1" ></div>
-                  <div class='cell' data-indx-i = "2" data-indx-j = "2" ></div>
+              <div id = 'board' class = 'board'>
               </div>
 
               <div class = 'control'>
@@ -40,7 +30,7 @@
                   <div class = 'ingame' id="end">
                     Play Again
                     <br>
-                    <div class="btn btn-default" onclick="replay()">Yes</div>
+                    <div class="btn btn-default" onclick="playAgain()">Yes</div>
                     <div class="btn btn-default" onclick="endGame()">No</div>
                   </div>
 

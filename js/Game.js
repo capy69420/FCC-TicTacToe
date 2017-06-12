@@ -1,4 +1,4 @@
-var Game = function(autoPlayer, player) {
+let Game = function(autoPlayer, player) {
   this.ai = autoPlayer;
   // creates the state with an empty board
   this.currentState = new State(undefined, player);
@@ -8,21 +8,19 @@ var Game = function(autoPlayer, player) {
 
   // Avances to the new state
   this.advanceState = function () {
-    //console.log(_state.isTerminal());
-    let _state = this.currentState;
-    console.log("state result:",_state);
-    if (_state.isTerminal()) {
-      if (_state.result === "player-won" ) {
+    let state = this.currentState;
+    if (state.isTerminal()) {
+      if (state.result === "player-won" ) {
         ui.switchViewTo("won");
-      } else if (_state.result === "AI-won" ) {
+      } else if (state.result === "AI-won" ) {
         ui.switchViewTo("lost");
       } else {
-        ui.switchViewTo("drawn");
+        ui.switchViewTo("draw");
       }
       this.status = "game-end";
       ui.switchViewTo("end");
     } else {
-      if ( _state.turn == player ) {
+      if ( state.turn == player ) {
         ui.switchViewTo("human");
       } else {
         ui.switchViewTo("robot");
@@ -40,18 +38,4 @@ var Game = function(autoPlayer, player) {
     }
   }
 
-}
-
-Game.score = function(_state) {
-  if ( _state.result !== "playing" ) {
-        if(_state.result === "AI-won"){
-            return 10 - _state.moveCount;
-        }
-        else if(_state.result === "player-won") {
-            return -10 + _state.moveCount;
-        }
-        else {
-            return 0;
-        }
-  }
 }
